@@ -20,6 +20,7 @@ var context = canvas.getContext("2d");
 
 var radius = 2;
 var count = 1;
+var particleList = [];
 
 var counter = function () {
     if (count === 11)
@@ -37,19 +38,24 @@ class Particle {
 
 }
 
-var drawParticle = function (context, x, y) {
+var drawParticle = function (context, particle) {
     //console.log(colors[counter()]);
+    //console.log(particle.xPos);
+    //console.log(particle.yPos);
+    //console.log(particle.radius);
     context.fillStyle = colors[counter()];
     context.beginPath();
-    context.arc(x, y, radius, 0, 2 * Math.PI);
+    context.arc(particle.xPos, particle.yPos, particle.radius, 0, 
+                                                        2 * Math.PI);
     context.stroke();
     context.fill();
-}
-
+};
 
 var on_canvas_click = function(event) {
     //console.log(event.clientX);
-    drawParticle(context, event.clientX, event.clientY);
+    var particle = new Particle(event.clientX, event.clientY, 1, 2);
+    particleList.push(particle);
+    drawParticle(context, particle);
 };
 
 
