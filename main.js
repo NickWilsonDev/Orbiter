@@ -29,11 +29,12 @@ var counter = function () {
 }
 
 class Particle {
-    constructor(xPos, yPos, mass, radius) {
+    constructor(xPos, yPos, mass, radius, velocity) {
         this.xPos = xPos;
         this.yPos = yPos;
         this.mass = mass;
         this.radius = radius;
+        this.velocity = velocity;
     }
 
 }
@@ -53,10 +54,25 @@ var drawParticle = function (context, particle) {
 
 var on_canvas_click = function(event) {
     //console.log(event.clientX);
-    var particle = new Particle(event.clientX, event.clientY, 1, 2);
+    var particle = new Particle(event.clientX, event.clientY, 1, 2, 1);
     particleList.push(particle);
     drawParticle(context, particle);
 };
 
 
 canvas.addEventListener('click', on_canvas_click, false);
+
+var animate = function () {
+    // update positions of particles in list
+    for (var i = 0; i < particleList.length; i++) {
+        particleList[i].xPos += particleList[i].velocity / 60;
+        particleList[i].yPos += particleList[i].velocity / 60;
+    }
+    context.clearRect(0, 0, 1000, 700);
+    for (var i = 0; i < particleList.length; i++) {
+        drawParticle(context, particleList[i]);
+    }
+}
+
+
+
