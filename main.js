@@ -18,6 +18,12 @@ var colors = {
 var canvas = document.querySelector("#canvas");
 var context = canvas.getContext("2d");
 
+var fps = 5;
+var now;
+var then = Date.now();
+var interval = 1000 / fps;
+var delta;
+
 var radius = 2;
 var count = 1;
 var particleList = [];
@@ -54,7 +60,7 @@ var drawParticle = function (context, particle) {
 
 var on_canvas_click = function(event) {
     //console.log(event.clientX);
-    var particle = new Particle(event.clientX, event.clientY, 1, 2, 1);
+    var particle = new Particle(event.clientX, event.clientY, 1, 2, 60);
     particleList.push(particle);
     drawParticle(context, particle);
 };
@@ -63,16 +69,22 @@ var on_canvas_click = function(event) {
 canvas.addEventListener('click', on_canvas_click, false);
 
 var animate = function () {
-    // update positions of particles in list
-    for (var i = 0; i < particleList.length; i++) {
-        particleList[i].xPos += particleList[i].velocity / 60;
-        particleList[i].yPos += particleList[i].velocity / 60;
-    }
-    context.clearRect(0, 0, 1000, 700);
-    for (var i = 0; i < particleList.length; i++) {
-        drawParticle(context, particleList[i]);
+    requestAnimationFrame(animate);
+    now = Date.now();
+    delta = now - then;
+    if (delta > interval) {
+        then = now - (delta % interval);
+        // update positions of particles in list
+        for (var i = 0; i < particleList.length; i++) {
+            particleList[i].xPos += particleList[i].velocity / 60;
+            particleList[i].yPos += particleList[i].velocity / 60;
+        }
+        context.clearRect(0, 0, 1000, 700);
+        for (var i = 0; i < particleList.length; i++) {
+            drawParticle(context, particleList[i]);
+        }
     }
 }
 
-
+animate();
 
