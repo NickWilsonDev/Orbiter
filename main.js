@@ -27,6 +27,16 @@ var counter = function () {
     return ++count;
 }
 
+class Particle {
+    constructor(xPos, yPos, mass, radius) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.mass = mass;
+        this.radius = radius;
+    }
+
+}
+
 var drawParticle = function (context, x, y) {
     //console.log(colors[counter()]);
     context.fillStyle = colors[counter()];
