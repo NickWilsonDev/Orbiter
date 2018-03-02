@@ -27,6 +27,8 @@ var delta;
 var radius = 2;
 var count = 1;
 var particleList = [];
+var GRAVITATION_CONSTANT = 5.0;
+var SQRTTWO = Math.pow(2, 0.5);
 
 var counter = function () {
     if (count === 11)
@@ -40,10 +42,10 @@ class Particle {
         this.yPos = yPos;
         this.mass = mass;
         this.radius = radius;
-        this.velocity = velocity;
+        this.xVelocity = velocity;
+        this.yVelocity = velocity;
         this.color = colors[counter()];
     }
-
 }
 
 var drawParticle = function (context, particle) {
@@ -60,8 +62,7 @@ var drawParticle = function (context, particle) {
 };
 
 var on_canvas_click = function(event) {
-    //console.log(event.clientX);
-    var particle = new Particle(event.clientX, event.clientY, 1, 2, 60);
+    var particle = new Particle(event.clientX, event.clientY, 1, 2, 0);
     particleList.push(particle);
     drawParticle(context, particle);
 };
@@ -71,22 +72,48 @@ canvas.addEventListener('click', on_canvas_click, false);
 
 particlesToRemove = [];
 
+var calcDistance = function(partA, partB) {
+    return Math.pow(Math.pow(partA.xPos - partB.xPos, 2) 
+                    + Math.pow(partA.yPos - partB.yPos, 2), 0.5);
+};
+
 var collision = function (partA, partB) {
-    var distance = Math.pow(Math.pow(partA.xPos - partB.xPos, 2) 
-                            + Math.pow(partA.yPos - partB.yPos, 2), 0.5);
+    var distance =  calcDistance(partA, partB);
     if (distance <= (partA.radius + partB.radius)) {
         if (partA.mass <= partB.mass) {
             particlesToRemove.push(partA);
             partB.mass += partA.mass;
-            partB.radius += partA.radius;
+            partB.radius += partA.radius / (partB.mass * 5.0);
+            partB.xVelocity = 0.0;
+            partB.yVelocity = 0.0;
         } else {
             particlesToRemove.push(partB);
             partA.mass += partB.mass;
-            partA.radius += partB.radius;
+            partA.radius += partB.radius / (partA.mass * 5.0);
+            partA.xVelocity = 0.0;
+            partA.yVelocity = 0.0;
         }
     }
     return;
-}
+};
+
+var forceX;
+var forceY;
+
+var calcVelocity = function (partA, partB) {
+    distance = calcDistance(partA, partB);
+    // maybe have them collide
+    if (distance <= 0.0) {
+        return;
+    }
+    var xDistance = partA.xPos - partB.yPos;
+    var yDistance = partA.yPos - partB.yPos;
+
+    var force = GRAVITATION_CONSTANT * partA.mass * partB.mass;
+    force = force / (distance * distance);
+    forceX -= Math.abs(force * (xDistance / distance)) * Math.sign(xDistance);
+    forceY -= Math.abs(force * (yDistance / distance)) * Math.sign(yDistance);
+};
 
 var animate = function () {
     requestAnimationFrame(animate);
@@ -100,22 +127,31 @@ var animate = function () {
             for (var j = i; j < particleList.length; j++) {
                 if (particleList[i] != particleList[j]) {
                     collision(particleList[i], particleList[j]);
+                    console.log(particleList[0].xVelocity);
                 }
             }
         }
         // remove absorbed particles
-        //particleList = particleList.filter(item => 
-        //        particlesToRemove.every(item2 => 
-        //                                    item2.cid != item.$id));
         particleList = particleList.filter(function(element) {
             return particlesToRemove.indexOf(element) === -1;
         });
         particlesToRemove = [];
         //console.log(
+        // update velocities
+        
+        for (var i = 0; i < particleList.length; i++) {
+            forceX = 0.0;
+            forceY = 0.0;
+            for (var j = 0; j < particleList.length; j++) {
+                calcVelocity(particleList[i], particleList[j]);
+            }
+            particleList[i].xVelocity += forceX / particleList[i].mass;
+            particleList[i].yVelocity += forceY / particleList[i].mass;
+        }
         // update positions of particles in list
         for (var i = 0; i < particleList.length; i++) {
-            particleList[i].xPos += particleList[i].velocity / 60;
-            particleList[i].yPos += particleList[i].velocity / 60;
+            particleList[i].xPos += particleList[i].xVelocity; /// 60;
+            particleList[i].yPos += particleList[i].yVelocity; /// 60;
         }
         context.clearRect(0, 0, 1000, 700);
         for (var i = 0; i < particleList.length; i++) {
