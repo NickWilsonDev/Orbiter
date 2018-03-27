@@ -62,7 +62,7 @@ var drawParticle = function (context, particle) {
 };
 
 var on_canvas_click = function(event) {
-    var particle = new Particle(event.clientX, event.clientY, 1, 2, 0);
+    var particle = new Particle(event.clientX, event.clientY, 5, 2, 0);
     particleList.push(particle);
     drawParticle(context, particle);
 };
@@ -84,14 +84,14 @@ var collision = function (partA, partB) {
             particlesToRemove.push(partA);
             partB.mass += partA.mass;
             partB.radius += partA.radius / (partB.mass * 5.0);
-            partB.xVelocity = 0.0;
-            partB.yVelocity = 0.0;
+            partB.xVelocity += partA.xVelocity / partA.mass;
+            partB.yVelocity += partA.yVelocity / partA.mass;
         } else {
             particlesToRemove.push(partB);
             partA.mass += partB.mass;
             partA.radius += partB.radius / (partA.mass * 5.0);
-            partA.xVelocity = 0.0;
-            partA.yVelocity = 0.0;
+            partA.xVelocity += partB.xVelocity / partB.mass;
+            partA.yVelocity += partB.yVelocity / partB.mass;
         }
     }
     return;
