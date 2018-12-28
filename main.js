@@ -29,12 +29,22 @@ var count = 1;
 var particleList = [];
 var GRAVITATION_CONSTANT = 5.0;
 var SQRTTWO = Math.pow(2, 0.5);
+var numParticles = 0;
 
 var counter = function () {
     if (count === 11)
         count = 0;
     return ++count;
 }
+
+var particleCountDisplay = document.getElementById("numParticles");
+
+var clearParticles = function () {
+    particleList = [];
+    numParticles = 0;
+    particleCountDisplay.innerHTML = numParticles;
+}
+
 
 class Particle {
     constructor(xPos, yPos, mass, radius, velocity) {
@@ -45,6 +55,8 @@ class Particle {
         this.xVelocity = velocity;
         this.yVelocity = velocity;
         this.color = colors[counter()];
+        numParticles++;
+        particleCountDisplay.innerHTML = numParticles;
     }
 }
 
@@ -73,32 +85,35 @@ canvas.addEventListener('click', on_canvas_click, false);
 particlesToRemove = [];
 
 var calcDistance = function(partA, partB) {
-    return Math.pow(Math.pow(partA.xPos - partB.xPos, 2) 
+    return Math.pow(
+                    Math.pow(partA.xPos - partB.xPos, 2)
                     + Math.pow(partA.yPos - partB.yPos, 2), 0.5);
 };
 
 var collision = function (partA, partB) {
-    var distance =  calcDistance(partA, partB);
+    var distance = calcDistance(partA, partB);
     if (distance <= (partA.radius + partB.radius)) {
+        numParticles--;
+        particleCountDisplay.innerHTML = numParticles;
         if (partA.mass <= partB.mass) {
             particlesToRemove.push(partA);
             partB.mass += partA.mass;
-            partB.radius += partA.radius / (partB.mass * 5.0);
-            partB.xVelocity += partA.xVelocity / partA.mass;
-            partB.yVelocity += partA.yVelocity / partA.mass;
+            partB.radius += partA.radius / 2; // / (partB.mass * 5.0);
+            partB.xVelocity += partA.xVelocity / partB.mass;
+            partB.yVelocity += partA.yVelocity / partB.mass;
         } else {
             particlesToRemove.push(partB);
             partA.mass += partB.mass;
-            partA.radius += partB.radius / (partA.mass * 5.0);
-            partA.xVelocity += partB.xVelocity / partB.mass;
-            partA.yVelocity += partB.yVelocity / partB.mass;
+            partA.radius += partB.radius / 2; // / (partA.mass * 5.0);
+            partA.xVelocity += partB.xVelocity / partA.mass;
+            partA.yVelocity += partB.yVelocity / partA.mass;
         }
     }
     return;
 };
 
-var forceX;
-var forceY;
+var forceX = 0.0;
+var forceY = 0.0;
 
 var calcVelocity = function (partA, partB) {
     distance = calcDistance(partA, partB);

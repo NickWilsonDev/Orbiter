@@ -1,4 +1,4 @@
-<!-- Conway's Game of Life index.html -->
+<!-- Orbiter index.html -->
 <!DOCTYPE html>
 
 <html lang="en">
@@ -8,14 +8,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Orbiter</title>
+    <link REL="StyleSheet" TYPE="text/css" HREF="styles.css">
 </head>
 
 
 <body>
-    <!--<div class="canvas"> -->
+    <div>
         <canvas id="canvas" width="1000" height="700"></canvas>
-    <!--</div> -->
-
+        <div>
+            <span id="numParticles"></span>
+            <button onclick="clearParticles();">Clear</button>
+        </div>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
